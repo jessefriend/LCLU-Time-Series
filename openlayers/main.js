@@ -25,6 +25,9 @@ var url2012 =
 var url2018 =
   'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2018_WM/MapServer';
 
+var adminBoundaries =
+  'https://maratlas.discomap.eea.europa.eu/arcgis/rest/services/Maratlas/country_borders/MapServer'
+
 
 var layers = [
   new TileLayer({
@@ -67,13 +70,21 @@ var layers = [
         }),
       ]
     }),
-    new VectorLayer({
-     source: new VectorSource({
-       url: './data/countries.json',
-       format: new GeoJSON(),
+   new ImageLayer({
+     source: new ImageArcGISRest({
+       ratio: 1,
+       params: {},
+       url: adminBoundaries,
      }),
- }),
+   }),
  ];
+
+//  new VectorLayer({
+//   source: new VectorSource({
+//     url: './data/countries.json',
+//     format: new GeoJSON(),
+//   }),
+// }),
 
 var map = new Map({
   layers: layers,
@@ -86,7 +97,8 @@ var map = new Map({
 
 
 var layerSwitcher = new LayerSwitcher({
-  startActive: true
+  startActive: true,
+  activationMode: 'click',
 });
 map.addControl(layerSwitcher);
 
@@ -100,8 +112,8 @@ var dateValue = document.getElementById("date_value");
 dateValue.innerHTML = dates[sliderRange.value].slice(0,10);
 lapply(layers, `[[`, 1).getSource().setUrl('https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC' + dates[sliderRange.value] + '_WM/MapServer');
 
-// Update the current slider value (each time you drag the slider handle)
-sliderRange.oninput = function() {
-dateValue.innerHTML = dates[this.value].slice(0,10);
-lapply(layers, `[[`, 1).getSource().setUrl('https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC' + dates[this.value] + '_WM/MapServer');
-}
+// // Update the current slider value (each time you drag the slider handle)
+// sliderRange.oninput = function() {
+// dateValue.innerHTML = dates[this.value].slice(0,10);
+// lapply(layers, `[[`, 1).getSource().setUrl('https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC' + dates[this.value] + '_WM/MapServer');
+// }

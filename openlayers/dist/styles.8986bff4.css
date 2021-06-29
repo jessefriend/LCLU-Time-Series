@@ -7,23 +7,23 @@ body {
   font-size: small;
 }
 
-.banner {
-  width: 100%;
-  height: 10%;
-  background: #d3d3d3;
-}
 
 .map {
   width: 100%;
-  height: 90%;
+  height: 100%;
+  position: absolute;
+  bottom: 0px;
 }
 
+p {
+  color: #363636;
+  font-size: 100%;
+}
 /* Limit the width of the layer-switcher */
 .layer-switcher {
-  max-width: 300px;
+  max-width: 150px;
 }
 
-/* Setting up the slider styling */
 .slidecontainer {
     width: 120px;
     margin-top: -30px;

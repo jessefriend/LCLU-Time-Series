@@ -94737,6 +94737,7 @@ var url2000 = 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/
 var url2006 = 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2006_WM/MapServer';
 var url2012 = 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2012_WM/MapServer';
 var url2018 = 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2018_WM/MapServer';
+var adminBoundaries = 'https://maratlas.discomap.eea.europa.eu/arcgis/rest/services/Maratlas/country_borders/MapServer';
 var layers = [new _layer.Tile({
   source: new _source.OSM()
 }), new _Group.default({
@@ -94770,12 +94771,19 @@ var layers = [new _layer.Tile({
       url: url2018
     })
   })]
-}), new _layer.Vector({
-  source: new _source.Vector({
-    url: './data/countries.json',
-    format: new _GeoJSON.default()
+}), new _layer.Image({
+  source: new _source.ImageArcGISRest({
+    ratio: 1,
+    params: {},
+    url: adminBoundaries
   })
-})];
+})]; //  new VectorLayer({
+//   source: new VectorSource({
+//     url: './data/countries.json',
+//     format: new GeoJSON(),
+//   }),
+// }),
+
 var map = new _Map.default({
   layers: layers,
   target: 'map',
@@ -94785,7 +94793,8 @@ var map = new _Map.default({
   })
 });
 var layerSwitcher = new _olLayerswitcher2.default({
-  startActive: true
+  startActive: true,
+  activationMode: 'click'
 });
 map.addControl(layerSwitcher); // Define the available dates
 
@@ -94794,12 +94803,11 @@ var sliderRange = document.getElementById("myRange");
 sliderRange.max = dates.length - 1;
 var dateValue = document.getElementById("date_value");
 dateValue.innerHTML = dates[sliderRange.value].slice(0, 10);
-lapply(layers, "[[", 1).getSource().setUrl('https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC' + dates[sliderRange.value] + '_WM/MapServer'); // Update the current slider value (each time you drag the slider handle)
-
-sliderRange.oninput = function () {
-  dateValue.innerHTML = dates[this.value].slice(0, 10);
-  lapply(layers, "[[", 1).getSource().setUrl('https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC' + dates[this.value] + '_WM/MapServer');
-};
+lapply(layers, "[[", 1).getSource().setUrl('https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC' + dates[sliderRange.value] + '_WM/MapServer'); // // Update the current slider value (each time you drag the slider handle)
+// sliderRange.oninput = function() {
+// dateValue.innerHTML = dates[this.value].slice(0,10);
+// lapply(layers, `[[`, 1).getSource().setUrl('https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC' + dates[this.value] + '_WM/MapServer');
+// }
 },{"ol/ol.css":"node_modules/ol/ol.css","ol-layerswitcher/dist/ol-layerswitcher.css":"node_modules/ol-layerswitcher/dist/ol-layerswitcher.css","ol/Map":"node_modules/ol/Map.js","ol/View":"node_modules/ol/View.js","ol/Feature":"node_modules/ol/Feature.js","ol/source":"node_modules/ol/source.js","ol/layer":"node_modules/ol/layer.js","ol/style":"node_modules/ol/style.js","ol/format/GeoJSON":"node_modules/ol/format/GeoJSON.js","ol/layer/Group":"node_modules/ol/layer/Group.js","ol-layerswitcher":"node_modules/ol-layerswitcher/dist/ol-layerswitcher.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
