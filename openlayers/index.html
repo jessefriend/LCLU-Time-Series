@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>LULC Timeseries Prototype</title>
+    <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
+    <script src="https://unpkg.com/elm-pep"></script>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <div role="group" aria-label="Animation controls">
+
+    <!-- Create slider container -->
+    <div class="slidecontainer">
+      <input type="range" min="0" max="2" value="0" class="slider" id="myRange">
+      <p>Date: <span id="date_value"></span></p>
+    </div>
+    
+    <script src="main.js"></script>
+  </body>
+</html>
