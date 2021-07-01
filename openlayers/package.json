@@ -1,7 +1,7 @@
 {
-  "name": "ol-layerswitcher-parcel",
+  "name": "landcover-timeseries-prototype",
   "version": "1.0.0",
-  "description": "Example using ol and ol-layerswitcher with Parcel",
+  "description": "A prototype for thesis work",
   "main": "dist/index.html",
   "scripts": {
     "dev": "parcel index.html",
