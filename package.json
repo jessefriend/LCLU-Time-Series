@@ -1,0 +1,20 @@
+{
+  "name": "jessefriend_thesis_prototype",
+  "version": "1.0.0",
+  "description": "Creating time-series with wms and wfs data.",
+  "main": "dist/index.html",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html --public-url ./"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "sass": "^1.36.0"
+  },
+  "dependencies": {
+    "ol": ">=5.0.0",
+    "ol-ext": "^3.2.3",
+    "ol-layerswitcher": "3.8.3"
+  }
+}
