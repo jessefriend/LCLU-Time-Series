@@ -1,1 +1,0 @@
-{"version":3,"sources":["styles.css"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA","file":"styles.8986bff4.css","sourceRoot":"..","sourcesContent":["html, body {\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.scroll {\r\n    height: 100%;\r\n}\r\n\r\n#map {\r\n    height: 100%;\r\n}\r\n"]}
