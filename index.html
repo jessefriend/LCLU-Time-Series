@@ -1,15 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"
+      name="viewport"
+      content="initial-scale=1.0, user-scalable=no, width=device-width"
+    />
     <title>LULC Timeseries Prototype</title>
     <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
     <script src="https://unpkg.com/elm-pep"></script>
     <script src="https://cdn.polyfill.io/v3/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,URL,TextDecoder"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="styles.scss">
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.6.1/build/ol.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <link rel="stylesheet" href="./css/ol3-sidebar.css" />
+    <link rel="stylesheet" href="./css/ol-layerswitcher.css" />
+    <link rel="stylesheet" href="./css/styles.scss">
   </head>
   <body>
+    <!-- START OF SIDEBAR DIV -->
+    <div id="sidebar" class="sidebar collapsed">
+      <!-- Nav tabs -->
+      <div class="sidebar-tabs">
+        <ul role="tablist">
+          <li>
+            <a href="#changelayers" role="tab"><i class="fa fa-layer-group"></i></a>
+          </li>
+          <li>
+            <a href="#statistics" role="tab"><i class="fa fa-chart-bar"></i></a>
+          </li>
+          <li>
+            <a href="#legend" role="tab"><i class="fa fa-list-ul"></i></a>
+          </li>
+        </ul>
+
+        <ul role="tablist">
+          <li>
+            <a href="#about" role="tab"><i class="fa fa-info-circle"></i></a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tab panes -->
+      <div class="sidebar-content">
+        <!-- <div class="sidebar-pane" id="about">
+          <h1 class="sidebar-header">
+            About
+            <span class="sidebar-close">
+              <i class="fa fa-caret-left"></i>
+            </span>
+          </h1>
+        </div> -->
+
+        <div class="sidebar-pane" id="changelayers">
+          <h1 class="sidebar-header">
+            Add & Remove Layers
+            <span class="sidebar-close">
+              <i class="fa fa-caret-left"></i>
+            </span>
+          </h1>
+          <div id="layers" class="layer-switcher"></div>
+        </div>
+
+        <div class="sidebar-pane" id="statistics">
+          <h1 class="sidebar-header">
+            Yearly Statistics
+            <span class="sidebar-close">
+              <i class="fa fa-caret-left"></i>
+            </span>
+          </h1>
+          <br>
+          <span style="font-size:11.0pt">
+            Hold the ctrl/cmd key down, then click and drag a box across the map.
+            Release the keys at desired area of interest to generate statistics.
+          </span>
+          <br>
+          <span style="font-size:8.0pt">
+            *Keep in mind large areas may take a longer time to generate data.
+          </span>
+          <br><br>
+          <div id="stats" class="stat-box">
+            <div class="tab">
+              <button class="tablinks" onclick="openYear(event, '2000')" id="defaultOpen">2000</button>
+              <button class="tablinks" onclick="openYear(event, '2006')">2006</button>
+              <button class="tablinks" onclick="openYear(event, '2012')">2012</button>
+              <button class="tablinks" onclick="openYear(event, '2018')">2018</button>
+            </div>
+            <!-- Tab content -->
+            <div id="2000" class="tabcontent">
+               <div id="loader2000"></div>
+               <div id="content2000"></div>
+            </div>
+
+            <div id="2006" class="tabcontent">
+              <div id="loader2006"></div>
+              <div id="content2006"></div>
+            </div>
+
+            <div id="2012" class="tabcontent">
+              <div id="loader2012"></div>
+              <div id="content2012"></div>
+            </div>
+
+            <div id="2018" class="tabcontent">
+              <div id="loader2018"></div>
+              <div id="content2018"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-pane" id="legend">
+          <h1 class="sidebar-header">
+            Legend
+            <span class="sidebar-close">
+              <i class="fa fa-caret-left"></i>
+            </span>
+          </h1>
+          <img src="https://image.discomap.eea.europa.eu/arcgis/services/Corine/CLC2018_WM/MapServer/WmsServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=11&" id="theImg"/>
+        </div>
+
+        <div class="sidebar-pane" id="about">
+          <h1 class="sidebar-header">
+            About
+            <span class="sidebar-close">
+              <i class="fa fa-caret-left"></i>
+            </span>
+          </h1>
+          <br>
+          <span style="font-size:10.0pt">
+          This website is a prototype application developed to view various ways
+          WMS and WFS data could be accessed to produce time series visualizations.
+          The work is not affiliated with any other projects, and is solely to test
+          approaches to visualizing time series in a WebGIS microservice application.
+          This app is intended to contribute to the reasearch for the M.Sc. thesis
+          of Jesse Friend in the International Master of Science in Cartography program.
+          It has been completed in collaboration between the Technical University of
+          Munich, and GAF in Munich.
+          <br><br>
+          The land cover data layers come from the <a href="https://land.copernicus.eu/pan-european/corine-land-cover">CLC inventory</a>.
+          <br><br>
+          The transportation and reference layers come from the <a href="https://server.arcgisonline.com/arcgis/rest/services">ArcGIS REST Services Directory</a>.
+          <br><br>
+          Click <a href="mailto: friendjessef@gmail.com">HERE</a>, or scan the QR code
+          below to get in touch.
+          </span>
+          <br><br><br>
+          <img src="http://api.qrserver.com/v1/create-qr-code/?color=000000&amp;bgcolor=FFFFFF&amp;data=MATMSG%3ATO%3Afriendjessef%40gmail.com%3BSUB%3ALU%2FLC+Prototype%3BBODY%3A%3B%3B&amp;qzone=1&amp;margin=0&amp;size=150x150&amp;ecc=L" alt="qr code" />
+        </div>
+      </div>
+    </div>
+    <!-- END OF SIDEBAR DIV -->
 
     <div id="map" class="map">
       <div class="title">
@@ -17,11 +156,12 @@
         	<p>Land Cover/Land Use <br> Time Series Prototype</p>
 
       </div>
-
     </div>
 
     <div class="range">
       <input type="range" min="1" max="4" steps="1" value="1">
+      <div class="highlight">
+      </div>
       <ul class="range-labels">
         <li class="active selected">2000</li>
         <li>2006</li>
@@ -30,22 +170,29 @@
       </ul>
     </div>
 
-    <div class="legend">
-      <span>Legend</span>
-    </div>
-
-    <div class="action">
-      <span>+</span>
-        <div id="myDiv" class="img-wrapper">
-             <img src="https://image.discomap.eea.europa.eu/arcgis/services/Corine/CLC2018_WM/MapServer/WmsServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=11&" id="theImg"/>
-        </div>
-
-    </div>
-
     <div id="popup" class="ol-popup">
       <a href="#" id="popup-closer" class="ol-popup-closer"></a>
       <div id="popup-content"></div>
     </div>
+    <script>
+    function openYear(evt, clcYear) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(clcYear).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+    </script>
+    <script src="js/ol3-sidebar.js"></script>
     <script src="main.js"></script>
   </body>
 </html>

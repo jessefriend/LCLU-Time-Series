@@ -12,12 +12,15 @@ body {
   height: 100%;
   position: absolute;
   bottom: 0px;
-  z-index: 0;
+}
+
+.layer-switcher {
+  position: initial;
 }
 
 .title {
-  position:absolute;
-  left: 5%;
+  position: absolute;
+  left: 8%;
   z-index: 99;
   color: #363636;
   font-size: 100%;
@@ -43,7 +46,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #a13dea;
+  color: #0074d9;
   font-size: 2em;
   transition: .3s ease-in-out;
   z-index: 99;
@@ -103,7 +106,7 @@ body {
   height: 18px;
   margin: -8px 0  0;
   border-radius: 50%;
-  background: #a13dea;
+  background: #0074d9;
   cursor: pointer;
   border: 0 !important;
 }
@@ -113,6 +116,7 @@ body {
   height: 2px;
   cursor: pointer;
   background: #5e5e5e;
+
 }
 
 .range {
@@ -176,6 +180,21 @@ body {
   }
 }
 
+.highlight {
+    background: white;
+    opacity: .8;
+    border-radius: 25px;
+    width: 330px;
+    height: 65px;
+    position: absolute;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+    bottom: -1175%;
+    z-index: -10;
+}
+
 // Labels below slider
 .range-labels {
   position: relative;
@@ -212,14 +231,14 @@ body {
   }
 
   .active {
-    color: #a13dea;
+    color: #0074d9;
     text-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white, 0 0 2px white;
     font-weight: bold;
     font-size: 110%;
   }
 
   .selected::before {
-    background: #a13dea;
+    background: #0074d9;
   }
 
   .active.selected::before {
@@ -271,4 +290,139 @@ body {
 .ol-dragbox {
   background-color: rgba(255,255,255,0.4);
   border-color: rgba(100,150,0,1);
+}
+
+.lorem {
+    font-style: italic;
+    color: #AAA;
+}
+
+/* Style the tab */
+.tab {
+ overflow: hidden;
+ border: 1px solid #ccc;
+ background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+ background-color: inherit;
+ float: left;
+ border: none;
+ outline: none;
+ cursor: pointer;
+ padding: 14px 16px;
+ transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+ background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+ background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+ display: none;
+ padding: 6px 12px;
+ border: 1px solid #ccc;
+ border-top: none;
+}
+
+.tabcontent {
+  animation: fadeEffect 1s; /* Fading effect takes 1 second */
+}
+
+/* Go from zero to full opacity */
+@keyframes fadeEffect {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+#loader2000 {
+  display: none;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#loader2006 {
+  display: none;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#loader2012 {
+  display: none;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#loader2018 {
+  display: none;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

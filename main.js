@@ -17,14 +17,19 @@ import {toStringHDMS} from 'ol/coordinate';
 import {DragBox, Select} from 'ol/interaction';
 import {platformModifierKeyOnly} from 'ol/events/condition';
 import {fromExtent} from 'ol/geom/Polygon';
+import {FullScreen, defaults as defaultControls} from 'ol/control';
+import {getArea} from 'ol/sphere';
+import LayerSwitcher from 'ol-layerswitcher';
 
 
 /**
- * Elements that make up the popup.
+ * HTML Elements to access.
  */
 const container = document.getElementById('popup');
 const content = document.getElementById('popup-content');
 const closer = document.getElementById('popup-closer');
+const stats2000 = document.getElementById('content2000');
+
 
 /**
  * Create an overlay to anchor the popup to the map.
@@ -49,7 +54,8 @@ closer.onclick = function () {
 
 var baseLayer =
   new TileLayer({
-    title: 'baseLayer',
+    title: "World Shaded Relief",
+    type: 'base',
     source: new XYZ({
         url:
           'https://server.arcgisonline.com/ArcGIS/rest/services/' +
@@ -57,9 +63,32 @@ var baseLayer =
       }),
   });
 
+var baseLayer2 =
+  new TileLayer({
+    title: "World Terrain",
+    type: 'base',
+    source: new XYZ({
+        url:
+          'https://server.arcgisonline.com/arcgis/rest/services/' +
+          'World_Terrain_Base/MapServer/tile/{z}/{y}/{x}',
+      }),
+  });
+
+var baseLayer3 =
+  new TileLayer({
+    title: "World Imagery",
+    type: 'base',
+    source: new XYZ({
+        url:
+          'https://server.arcgisonline.com/arcgis/rest/services/' +
+          'World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      }),
+  });
+
 var wms2000 =
   new TileWMS({
     params: {'LAYERS': 'Corine_Land_Cover_2000_raster11306', 'TILED':true},
+    projection: 'EPSG:3857',
     crossOrigin: 'anonymous',
     serverType: 'mapserver',
     url: 'https://image.discomap.eea.europa.eu/arcgis/services/Corine/CLC2000_WM/MapServer/WmsServer',
@@ -68,6 +97,7 @@ var wms2000 =
 var wms2006 =
   new TileWMS({
     params: {'LAYERS': 'Corine_Land_Cover_2006_raster43084', 'TILED':true},
+    projection: 'EPSG:3857',
     crossOrigin: 'anonymous',
     serverType: 'mapserver',
     url: 'https://image.discomap.eea.europa.eu/arcgis/services/Corine/CLC2006_WM/MapServer/WmsServer',
@@ -76,6 +106,7 @@ var wms2006 =
 var wms2012 =
   new TileWMS({
     params: {'LAYERS': 'Corine_Land_Cover_2012_raster59601', 'TILED':true},
+    projection: 'EPSG:3857',
     crossOrigin: 'anonymous',
     serverType: 'mapserver',
     url: 'https://image.discomap.eea.europa.eu/arcgis/services/Corine/CLC2012_WM/MapServer/WmsServer',
@@ -84,195 +115,119 @@ var wms2012 =
 var wms2018 =
   new TileWMS({
     params: {'LAYERS': '12', 'TILED':true},
+    projection: 'EPSG:3857',
     crossOrigin: 'anonymous',
     serverType: 'mapserver',
     url: 'https://image.discomap.eea.europa.eu/arcgis/services/Corine/CLC2018_WM/MapServer/WmsServer',
   });
 
-
-var layers = [
+var layers2000 = [
   new TileLayer({
-    title: 'wms2000',
     source: wms2000,
     maxZoom: 10,
   }),
   new TileLayer({
-    title: 'wms2006',
+    minZoom: 10,
+    source: new TileArcGISRest({
+      params: {'TILED':true},
+      projection: 'EPSG:3857',
+      url: 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2000_WM/MapServer',
+    }),
+  })
+];
+
+var layers2006 = [
+  new TileLayer({
     source: wms2006,
     maxZoom: 10,
   }),
   new TileLayer({
-    title: 'wms2012',
+    minZoom: 10,
+    source: new TileArcGISRest({
+      params: {'TILED':true},
+      projection: 'EPSG:3857',
+      url: 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2006_WM/MapServer',
+    }),
+  })
+];
+
+var layers2012 = [
+  new TileLayer({
     source: wms2012,
     maxZoom: 10,
   }),
   new TileLayer({
-    title: 'wms2018',
+    minZoom: 10,
+    source: new TileArcGISRest({
+      params: {'TILED':true},
+      projection: 'EPSG:3857',
+      url: 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2012_WM/MapServer',
+    }),
+  })
+];
+
+var layers2018 = [
+  new TileLayer({
     source: wms2018,
     maxZoom: 10,
   }),
- ];
-
- var tileLayers = [
-   new TileLayer({
-     title: 'tile2000',
-     minZoom: 10,
-     source: new TileArcGISRest({
-       params: {'TILED':true},
-       url: 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2000_WM/MapServer',
-     }),
-   }),
-   new TileLayer({
-     title: 'tile2006',
-     minZoom: 10,
-     source: new TileArcGISRest({
-       params: {'TILED':true},
-       url: 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2006_WM/MapServer',
-     }),
-   }),
-   new TileLayer({
-     title: 'tile2012',
-     minZoom: 10,
-     source: new TileArcGISRest({
-       params: {'TILED':true},
-       url: 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2012_WM/MapServer',
-     }),
-   }),
-   new TileLayer({
-     title: 'tile2018',
-     minZoom: 10,
-     source: new TileArcGISRest({
-       params: {'TILED':true},
-       url: 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2018_WM/MapServer',
-     }),
-   }),
-  ];
-
-var adminLayer =
-  new ImageLayer({
-    title: 'admin',
-    source: new ImageArcGISRest({
-      ratio: 1,
-      params: {},
-      url: 'https://maratlas.discomap.eea.europa.eu/arcgis/rest/services/Maratlas/country_borders/MapServer',
+  new TileLayer({
+    minZoom: 10,
+    source: new TileArcGISRest({
+      params: {'TILED':true},
+      projection: 'EPSG:3857',
+      url: 'https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2018_WM/MapServer',
     }),
+  })
+];
+
+var layers = [
+  layers2000,
+  layers2006,
+  layers2012,
+  layers2018
+]
+
+var transportationLayer =
+  new TileLayer({
+    title: 'Transportation Layer',
+    source: new XYZ({
+        url:
+          'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+          'Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+      }),
   });
 
 var labelLayer =
   new TileLayer({
-    title: 'Labels',
-    source: new Stamen({
-      layer: 'toner-labels' }),
-      });
-
-//vector layers
-// var vSource2000 = new VectorSource({
-//   format: new GeoJSON(),
-//   url: function (extent) {
-//     return (
-//       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-//       '&REQUEST=GetFeature&TYPENAME=timeseries:U2006_CLC2000_V2020_20u1&' +
-//       'outputFormat=application/json&srsname=EPSG:3857&' +
-//       'bbox=' +
-//       extent.join(',') +
-//       ',EPSG:3857'
-//     );
-//   },
-//   strategy: bboxStrategy,
-// });
-
-// var vSource2006 = new VectorSource({
-//   format: new GeoJSON(),
-//   url: function (extent) {
-//     return (
-//       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-//       '&REQUEST=GetFeature&TYPENAME=timeseries:U2012_CLC2006_V2020_20u1U2012_CLC2006_V2020_20u1&' +
-//       'outputFormat=application/json&srsname=EPSG:3857&' +
-//       'bbox=' +
-//       extent.join(',') +
-//       ',EPSG:3857'
-//     );
-//   },
-//   strategy: bboxStrategy,
-// });
-//
-// var vSource2012 = new VectorSource({
-//   format: new GeoJSON(),
-//   url: function (extent) {
-//     return (
-//       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-//       '&REQUEST=GetFeature&TYPENAME=timeseries:U2018_CLC2012_V2020_20u1U2018_CLC2012_V2020_20u1&' +
-//       'outputFormat=application/json&srsname=EPSG:3857&' +
-//       'bbox=' +
-//       extent.join(',') +
-//       ',EPSG:3857'
-//     );
-//   },
-//   strategy: bboxStrategy,
-// });
-//
-// var vSource2018 = new VectorSource({
-//   format: new GeoJSON(),
-//   url: function (extent) {
-//     return (
-//       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-//       '&REQUEST=GetFeature&TYPENAME=timeseries:U2018_CLC2018_V2020_20u1U2018_CLC2018_V2020_20u1&' +
-//       'outputFormat=application/json&srsname=EPSG:3857&' +
-//       'bbox=' +
-//       extent.join(',') +
-//       ',EPSG:3857'
-//     );
-//   },
-//   strategy: bboxStrategy,
-// });
-//
-// var vectorLayers = [
-//   new VectorLayer({
-//     visible: false,
-//     opacity: 1,
-//     title: 'vector2000',
-//     source: vSource2000,
-//   }),
-//   new VectorLayer({
-//     visible: false,
-//     opacity: 0,
-//     title: 'vector2006',
-//     source: vSource2006,
-//   }),
-//   new VectorLayer({
-//     visible: false,
-//     opacity: 0,
-//     title: 'vector2012',
-//     source: vSource2012,
-//   }),
-//   new VectorLayer({
-//     visible: false,
-//     opacity: 0,
-//     title: 'vector2018',
-//     source: vSource2018,
-//   })
-// ]
+    title: 'Boundaries & Labels',
+    source: new XYZ({
+        url:
+          'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+          'Reference/World_Boundaries_and_Places_Alternate/MapServer/tile/{z}/{y}/{x}',
+      }),
+  });
 
 var view = new View({
   center: [1069099, 7200000],
-  zoom: 4.1,
+  zoom: 3.8,
   constrainRotation: 16,
+  projection: 'EPSG:3857',
 });
 
 var map = new Map({
-  layers: [baseLayer],
+  layers: [baseLayer3, baseLayer2, baseLayer],
   target: 'map',
   overlays: [overlay],
   view: view,
 });
 
 for (var i = 0; i < 4; i++) {
-  map.addLayer(layers[i]);
-  map.addLayer(tileLayers[i]);
+  map.addLayer(layers[i][0]);
+  map.addLayer(layers[i][1]);
 }
 
-// map.addLayer(vectorLayers[0]);
-map.addLayer(adminLayer);
+map.addLayer(transportationLayer);
 map.addLayer(labelLayer);
 
 function parseXml(xmlStr) {
@@ -350,98 +305,16 @@ map.on('pointermove', function (evt) {
   map.getTargetElement().style.cursor = hit ? 'pointer' : '';
 });
 
-// execute the displayFeatureInfo  method //
-
-// var displayFeatureInfo  = function(pixel, coordinate) {
-//   var features = [];
-//
-//   map.forEachFeatureAtPixel(pixel, function(feature) {
-//      features.push(feature);
-//    }, {
-//      layerFilter: function (layer) {
-//        return layer.get('title').includes('vector');
-//      }
-//    }
-//  )
-//  console.log(features);
-//  if (features.length == 4) {
-//    content.innerHTML =
-//    '<p></p><code>2000 CLC Code: ' + features[3].get('code_00') + '</code>' +
-//    '<p></p><code>2006 CLC Code: ' + features[2].get('code_06') + '</code>' +
-//    '<p></p><code>2012 CLC Code: ' + features[1].get('code_12') + '</code>' +
-//    '<p></p><code>2018 CLC Code: ' + features[0].get('code_18') + '</code>';
-//    overlay.setPosition(coordinate);
-//
-//  } else {
-//    content.innerHTML = '<p>'+ 'Loading timeline...<br>'+features.length + '/4 years loaded<br>Please wait a few seconds and click here again' + '</p>';
-//    overlay.setPosition(coordinate);
-//  }
-// }
-//
-//
-// map.on('click', function(event) {
-//   var coordinate = event.coordinate
-//   var resolutionForZoom = map.getView().getResolutionForZoom(map.getView().getZoom());
-//   var minx = coordinate[0] - 150;
-//   var maxx = coordinate[0] + 150;
-//   var miny = coordinate[1] - 150;
-//   var maxy = coordinate[1] + 150;
-//
-//   console.log(minx);
-//
-//   vSource2000.setUrl(
-//         'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-//         '&REQUEST=GetFeature&TYPENAME=timeseries:U2006_CLC2000_V2020_20u1&' +
-//         'outputFormat=application/json&srsname=EPSG:3857&' +
-//         'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy + ',EPSG:3857');
-//   vSource2006.setUrl(
-//         'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-//         '&REQUEST=GetFeature&TYPENAME=timeseries:U2012_CLC2006_V2020_20u1U2012_CLC2006_V2020_20u1&' +
-//         'outputFormat=application/json&srsname=EPSG:3857&' +
-//         'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy + ',EPSG:3857');
-//   vSource2012.setUrl(
-//         'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-//         '&REQUEST=GetFeature&TYPENAME=timeseries:U2018_CLC2012_V2020_20u1U2018_CLC2012_V2020_20u1&' +
-//         'outputFormat=application/json&srsname=EPSG:3857&' +
-//         'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy + ',EPSG:3857');
-//   vSource2018.setUrl(
-//         'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-//         '&REQUEST=GetFeature&TYPENAME=timeseries:U2018_CLC2018_V2020_20u1U2018_CLC2018_V2020_20u1&' +
-//         'outputFormat=application/json&srsname=EPSG:3857&' +
-//         'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy +',EPSG:3857');
-//   for (var i = 0; i < 4; i++) {
-//       vectorLayers[i].setVisible(true);
-//     }
-//   displayFeatureInfo(event.pixel, coordinate)
-// })
-
-
 $(".range input").on('input change', function(){
   var opacity, n = $(this).val();
-  for (var i=0; i<(layers.length); i++){
+  for (var i=0; i<(4); i++){
     opacity = ((i+1)==n ? 1 : 0);
-    if ((layers[i].getOpacity() != opacity) && (tileLayers[i].getOpacity() != opacity)) {
-      layers[i].setOpacity(opacity);
-      tileLayers[i].setOpacity(opacity);
+    if ((layers[i][0].getOpacity() != opacity) && (layers[i][1].getOpacity() != opacity)) {
+      layers[i][0].setOpacity(opacity);
+      layers[i][1].setOpacity(opacity);
     }
   }
 }).change();
-
-
-var coll = document.getElementsByClassName("action");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  });
-}
 
 var sheet = document.createElement('style'),
   $rangeInput = $('.range input'),
@@ -464,8 +337,8 @@ var getTrackStyle = function (el) {
 
   // Change background gradient
   for (var i = 0; i < prefs.length; i++) {
-    style += '.range {background: linear-gradient(to right, #a13dea 0%, #a13dea ' + (val - 2) + '%, #ffffff00 ' + (val - 2) + '%, #ffffff00 100%)}';
-    style += '.range input::-' + prefs[i] + '{background: linear-gradient(to right, #a13dea 0%, #a13dea ' + (val - 2) + '%, #5e5e5e ' + (val -2) + '%, #5e5e5e 100%)}';
+    style += '.range {background: linear-gradient(to right, #0074d9 0%, #0074d9 ' + (val - 2) + '%, #ffffff00 ' + (val - 2) + '%, #ffffff00 100%)}';
+    style += '.range input::-' + prefs[i] + '{background: linear-gradient(to right, #0074d9 0%, #0074d9 ' + (val - 2) + '%, #5e5e5e ' + (val -2) + '%, #5e5e5e 100%)}';
   }
 
   return style;
@@ -483,34 +356,12 @@ $('.range-labels li').on('click', function () {
 
 });
 
-
-// a normal select interaction to handle click
-const select = new Select();
-map.addInteraction(select);
-
-const selectedFeatures = select.getFeatures();
-
 // a DragBox interaction used to select features by drawing boxes
 const dragBox = new DragBox({
   condition: platformModifierKeyOnly,
 });
 
 map.addInteraction(dragBox);
-
-// let viewProjection = "EPSG:3857";
-//
-// map.on("click", function(evt) {
-//
-//     let clickedCoordinate = evt.coordinate;
-//     var resolutionForZoom = map.getView().getResolutionForZoom(map.getView().getZoom());
-//
-//     var minx = evt.coordinate[0] - 0.5 * resolutionForZoom;
-//     var maxx = evt.coordinate[0] + 0.5 * resolutionForZoom;
-//     var miny = evt.coordinate[1] - 0.5 * resolutionForZoom;
-//     var maxy = evt.coordinate[1] + 0.5 * resolutionForZoom;
-//
-
-// );
 
 var extentSource = new VectorSource({});
 var extentStyle = new Style({
@@ -526,24 +377,39 @@ var extentLayer = new VectorLayer({
     projection: 'EPSG:3857',
     source: extentSource,
 });
+
 map.addLayer(extentLayer);
 
 dragBox.on('boxend', function () {
   // features that intersect the box geometry are added to the
   // collection of selected features
 
-  // if the view is not obliquely rotated the box geometry and
-  // its extent are equalivalent so intersecting features can
-  // be added directly to the collection
   const extent = dragBox.getGeometry().getExtent();
   const polygon = fromExtent(extent);
+  // var area = getArea(polygon, { projection: map.getView().getProjection() });
+  // // var areaFormat = Math.round(area * 100) / 100;
+  // var haArea = area / 10000;
+  // console.log(haArea);
+
   var feature = new Feature(polygon);
+
   extentSource.addFeature(feature);
   feature.setStyle(extentStyle);
+
+  stats2000.innerHTML = '';
+  $("#loader2000").toggle();
+  $("#loader2006").toggle();
+  $("#loader2012").toggle();
+  $("#loader2018").toggle();
+
   const minx = extent[0];
   const miny = extent[1];
   const maxx = extent[2];
   const maxy = extent[3];
+
+  // var minCoords = toLonLat([minx, miny]);
+  // var maxCoords = toLonLat([maxx, maxy]);
+
 
   const params = {
       service: "WFS",
@@ -551,100 +417,110 @@ dragBox.on('boxend', function () {
       request: "GetFeature",
       typename: "timeseries:U2006_CLC2000_V2020_20u1,timeseries:U2012_CLC2006_V2020_20u1U2012_CLC2006_V2020_20u1," +
       "timeseries:U2018_CLC2012_V2020_20u1U2018_CLC2012_V2020_20u1,timeseries:U2018_CLC2018_V2020_20u1U2018_CLC2018_V2020_20u1",
-      srsname: "EPSG:3857",
-      outputFormat: "application/json",
-      //CQL_FILTER: CAN THIS BE USED???
+      srsName: "EPSG:3857",
+      // geometryName: "geom",
+      outputFormat: "text/xml; subtype=gml/3.2",
+      // cql_filter: "INTERSECTS(the_geom," + minCoords[0] + "," + minCoords[1] + "," + maxCoords[0] + "," + maxCoords[1] + ")",
       bbox: minx + ',' + miny + ',' + maxx + ',' + maxy + ",EPSG:3857"
   };
+
+// console.log(params);
 
   $.ajax('https://thawing-waters-16552.herokuapp.com/https://clc-timeseries.gaf.de/wfs?', {
       type: "GET",
       data: params,
-      dataType: "json",
-      contentType: "application/json"
+      dataType: "xml",
+      contentType: "text/xml; subtype=gml/3.2"
   }).then(data => {
-       console.log(data);
-       // overlay.setPosition(clickedCoordinate);
+      // console.log(data);
+      var data2000 = data.getElementsByTagName('timeseries:U2006_CLC2000_V2020_20u1');
+      var result2000 = {};
+      var area2000 = 0;
+      for (let i = 0; i < data2000.length; i++) {
+        var clcCode = data2000[i].childNodes[2].textContent;
+        var featureArea = parseFloat(data2000[i].childNodes[3].textContent);
+        area2000 = area2000 + featureArea;
+
+        if (clcCode in result2000) {
+          result2000[clcCode] = result2000[clcCode] + featureArea;
+        } else {
+          result2000[clcCode] = featureArea;
+          // result2000[clcCode] = result2000[clcCode] + featureArea;
+        };
+      }
+      for (var key in result2000) {
+          result2000[key] = ((result2000[key]/area2000)*100).toFixed(2);
+      }
+      console.log(result2000);
+      let txt = "";
+      for (let x in result2000) {
+        txt += "<b>" + x + "</b>: " + result2000[x] + "%<br>";
+      };
+
+      $("#loader2000").toggle();
+      $("#loader2006").toggle();
+      $("#loader2012").toggle();
+      $("#loader2018").toggle();
+      stats2000.innerHTML = txt;
+      // console.log(data.getElementsByTagName('timeseries:U2006_CLC2000_V2020_20u1')[0].childNodes[2].textContent);
+      // console.log(parseFloat(data.getElementsByTagName('timeseries:U2006_CLC2000_V2020_20u1')[0].childNodes[3].textContent));
+     // console.log(data.getElementsByTagName('timeseries:code_00')[0].childNodes[0].nodeValue);
+     // var values2000 = data.getElementsByTagName('timeseries:U2006_CLC2000_V2020_20u1');
+     // var values2006 = data.getElementsByTagName('timeseries:U2012_CLC2006_V2020_20u1U2012_CLC2006_V2020_20u1');
+     // var values2012 = data.getElementsByTagName('timeseries:U2018_CLC2012_V2020_20u1U2018_CLC2012_V2020_20u1');
+     // var values2018 = data.getElementsByTagName('timeseries:U2018_CLC2018_V2020_20u1U2018_CLC2018_V2020_20u1');
+     // console.log(values2018);
   }).fail((jqXHR, textStatus, errorThrown) => {
       // FAIL
   });
-
-
-
-  // var vSource2000 = new VectorSource({
-  //   format: new GeoJSON(),
-  //   url: function (extent) {
-  //     return (
-  //       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-  //       '&REQUEST=GetFeature&TYPENAME=timeseries:U2006_CLC2000_V2020_20u1&' +
-  //       'outputFormat=application/json&srsname=EPSG:3857&' +
-  //       'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy + ',EPSG:3857');
-  //   },
-  //   strategy: bboxStrategy,
-  // });
-  //
-  // var testV =
-  //   new VectorLayer({
-  //     visible: true,
-  //     opacity: 1,
-  //     title: 'vector2000',
-  //     source: vSource2000,
-  //   });
-
-  // vSource2000.setUrl(
-  //       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-  //       '&REQUEST=GetFeature&TYPENAME=timeseries:U2006_CLC2000_V2020_20u1&' +
-  //       'outputFormat=application/json&srsname=EPSG:3857&' +
-  //       'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy + ',EPSG:3857');
-  // vSource2006.setUrl(
-  //       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-  //       '&REQUEST=GetFeature&TYPENAME=timeseries:U2012_CLC2006_V2020_20u1U2012_CLC2006_V2020_20u1&' +
-  //       'outputFormat=application/json&srsname=EPSG:3857&' +
-  //       'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy + ',EPSG:3857');
-  // vSource2012.setUrl(
-  //       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-  //       '&REQUEST=GetFeature&TYPENAME=timeseries:U2018_CLC2012_V2020_20u1U2018_CLC2012_V2020_20u1&' +
-  //       'outputFormat=application/json&srsname=EPSG:3857&' +
-  //       'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy + ',EPSG:3857');
-  // vSource2018.setUrl(
-  //       'https://clc-timeseries.gaf.de/wfs?service=wfs&version=1.1.0&' +
-  //       '&REQUEST=GetFeature&TYPENAME=timeseries:U2018_CLC2018_V2020_20u1U2018_CLC2018_V2020_20u1&' +
-  //       'outputFormat=application/json&srsname=EPSG:3857&' +
-  //       'bbox=' + minx + ',' + miny + ',' + maxx + ',' + maxy +',EPSG:3857');
-  // for (var i = 0; i < 4; i++) {
-  //     vectorLayers[i].setVisible(true);
-  //   }
-  // map.addLayer(testV);
-
-  // const rotation = map.getView().getRotation();
-  // const oblique = rotation % (Math.PI / 2) !== 0;
-  // const candidateFeatures = oblique ? [] : selectedFeatures;
-
-  // vSource2000.forEachFeatureIntersectingExtent(extent, function (feature) {
-  //   candidateFeatures.push(feature);
-  // });
-  // when the view is obliquely rotated the box extent will
-  // exceed its geometry so both the box and the candidate
-  // feature geometries are rotated around a common anchor
-  // to confirm that, with the box geometry aligned with its
-  // extent, the geometries intersect
-  // if (oblique) {
-  //   const anchor = [0, 0];
-  //   const geometry = dragBox.getGeometry().clone();
-  //   geometry.rotate(-rotation, anchor);
-  //   const extent = geometry.getExtent();
-  //   candidateFeatures.forEach(function (feature) {
-  //     const geometry = feature.getGeometry().clone();
-  //     geometry.rotate(-rotation, anchor);
-  //     if (geometry.intersectsExtent(extent)) {
-  //       selectedFeatures.push(feature);
-  //     }
-  //   });
-  // }
-  // map.removeLayer(testV);
 });
 
 // clear selection when drawing a new box and when clicking on the map
 dragBox.on('boxstart', function () {
-  selectedFeatures.clear();
+  extentSource.clear()
 });
+
+var fullscreenControl = new FullScreen({
+  source: document.getElementById('map').parentNode
+});
+
+map.addControl(fullscreenControl);
+
+// Get out-of-the-map div element with the ID "layers" and renders layers to it.
+// NOTE: If the layers are changed outside of the layer switcher then you
+// will need to call ol.control.LayerSwitcher.renderPanel again to refesh
+// the layer tree. Style the tree via CSS.
+var sidebar = new ol.control.Sidebar({
+  element: 'sidebar',
+  position: 'left'
+});
+var toc = document.getElementById('layers');
+ol.control.LayerSwitcher.renderPanel(map, toc,
+  {
+  reverse: true,
+  groupSelectStyle: 'group'
+});
+map.addControl(sidebar);
+
+
+//
+// function openYear(evt, clcYear) {
+//   // Declare all variables
+//   var i, tabcontent, tablinks;
+//
+//   // Get all elements with class="tabcontent" and hide them
+//   tabcontent = document.getElementsByClassName("tabcontent");
+//   for (i = 0; i < tabcontent.length; i++) {
+//     tabcontent[i].style.display = "none";
+//   }
+//
+//   // Get all elements with class="tablinks" and remove the class "active"
+//   tablinks = document.getElementsByClassName("tablinks");
+//   for (i = 0; i < tablinks.length; i++) {
+//     tablinks[i].className = tablinks[i].className.replace(" active", "");
+//   }
+//
+//   // Show the current tab, and add an "active" class to the button that opened the tab
+//   document.getElementById(clcYear).style.display = "block";
+//   evt.currentTarget.className += " active";
+// }
