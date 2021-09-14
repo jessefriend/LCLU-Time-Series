@@ -13,6 +13,8 @@
     "sass": "^1.36.0"
   },
   "dependencies": {
+    "chart.js": "^3.5.1",
+    "jquery-csv": "^1.0.21",
     "ol": ">=5.0.0",
     "ol-ext": "^3.2.3",
     "ol-layerswitcher": "3.8.3"
